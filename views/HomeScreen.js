@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProducts } from '../context/productContext';
-import { Button } from 'react-native-web';
 
 export default function HomeScreen() {
   const { menus } = useProducts();
@@ -13,13 +12,12 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Menús Disponibles</Text>
-
-      <View style={styles.menuGrid}>
+    <ScrollView horizontal style={styles.container}>
+      <View style={styles.menuWrapper}>
+        {/* Menú Carne Asada */}
         <View style={styles.menuSection}>
           <Text style={styles.sectionTitle}>Menú Carne Asada</Text>
-          <View style={styles.productsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {menus.carneAsada.length > 0 ? (
               menus.carneAsada.map((product) => (
                 <TouchableOpacity
@@ -34,12 +32,13 @@ export default function HomeScreen() {
             ) : (
               <Text>No hay productos disponibles</Text>
             )}
-          </View>
+          </ScrollView>
         </View>
 
+        {/* Menú Pollo y Pescado */}
         <View style={styles.menuSection}>
           <Text style={styles.sectionTitle}>Menú Pollo y Pescado</Text>
-          <View style={styles.productsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {menus.polloYPescado.length > 0 ? (
               menus.polloYPescado.map((product) => (
                 <TouchableOpacity
@@ -54,14 +53,13 @@ export default function HomeScreen() {
             ) : (
               <Text>No hay productos disponibles</Text>
             )}
-          </View>
+          </ScrollView>
         </View>
-      </View>
 
-      <View style={styles.menuGrid}>
+        {/* Menú Ensalada */}
         <View style={styles.menuSection}>
           <Text style={styles.sectionTitle}>Menú Ensalada</Text>
-          <View style={styles.productsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {menus.ensalada.length > 0 ? (
               menus.ensalada.map((product) => (
                 <TouchableOpacity
@@ -76,12 +74,13 @@ export default function HomeScreen() {
             ) : (
               <Text>No hay productos disponibles</Text>
             )}
-          </View>
+          </ScrollView>
         </View>
 
+        {/* Menú Carne Vegana y Ensalada */}
         <View style={styles.menuSection}>
           <Text style={styles.sectionTitle}>Menú Carne Vegana y Ensalada</Text>
-          <View style={styles.productsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {menus.carneVeganaYEnsalada.length > 0 ? (
               menus.carneVeganaYEnsalada.map((product) => (
                 <TouchableOpacity
@@ -96,11 +95,10 @@ export default function HomeScreen() {
             ) : (
               <Text>No hay productos disponibles</Text>
             )}
-          </View>
+          </ScrollView>
         </View>
       </View>
-
-    </View>
+    </ScrollView>
   );
 }
 
@@ -110,26 +108,18 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  menuGrid: {
+  menuWrapper: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+    alignItems: 'flex-start',
   },
   menuSection: {
-    width: '48%', // Dos menús por fila
-    marginBottom: 20,
+    marginRight: 20,
     padding: 10,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 10,
     backgroundColor: '#f9f9f9',
-    elevation: 3, // Agregar sombra
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 20,
@@ -137,20 +127,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#333',
   },
-  productsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
   menuCard: {
-    width: '48%', // Dos productos por fila
+    width: 200,
     backgroundColor: '#fff',
     borderRadius: 8,
-    marginBottom: 10,
+    marginRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
-    elevation: 3, // Sombra para los platos
+    elevation: 3,
   },
   menuImage: {
     width: '100%',
