@@ -1,20 +1,21 @@
 import React from 'react';
+import { ProductProvider } from './context/productContext'; 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './views/HomeScreen';
-import BusquedaPlatosScreen from './views/BusquedaPlatosScreen';
-import DetallePlatoScreen from './views/DetallePlatosScreen';
+import DetallePlatoScreen from './views/DetallePlatoScreen';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="BusquedaPlatos" component={BusquedaPlatosScreen} />
-        <Stack.Screen name="DetallePlato" component={DetallePlatoScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ProductProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="detallePlato" component={DetallePlatoScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ProductProvider>
   );
 }

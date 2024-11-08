@@ -1,132 +1,146 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Para la navegación
+import { useProducts } from '../context/productContext'; // Importamos el contexto
 
-export default function HomeScreen({ navigation }) {
-  const menus = [
-    {
-      id: 1,
-      nombre: 'Carne Asada',
-      tipo: 'Omnívoro',
-      descripcion: 'Deliciosa carne asada acompañada de papas y ensalada.',
-    },
-    {
-      id: 2,
-      nombre: 'Pollo y Pescado',
-      tipo: 'Omnívoro',
-      descripcion: 'Combinación de pollo asado y filete de pescado al vapor.',
-    },
-    {
-      id: 3,
-      nombre: 'Ensalada Vegana',
-      tipo: 'Vegano',
-      descripcion: 'Ensalada fresca con aguacate, tomate, zanahoria y lechuga.',
-    },
-    {
-      id: 4,
-      nombre: 'Carne Artificial y Ensalada',
-      tipo: 'Vegano',
-      descripcion: 'Carne vegetal a la parrilla acompañada de una ensalada mixta.',
-    },
-  ];
+export default function HomeScreen() {
+  const { menus } = useProducts(); // Obtenemos los menús del contexto
+  const navigation = useNavigation(); // Para la navegación hacia la pantalla de detalle del plato
+
+  const navigateToDetails = (menuId) => {
+    // Navegar a la pantalla de detalles pasando el ID del plato
+    navigation.navigate('detallePlato', { menuId });
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido a la App de Platos</Text>
-      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View style={styles.menuContainer}>
-          {menus.map((menu, index) => (
-            <View style={styles.menuItem} key={index}>
-              <Text style={styles.menuTitle}>{menu.nombre}</Text>
-              <Text style={styles.menuDescription}>{menu.descripcion}</Text>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => navigation.navigate('detallePlato', { menuId: menu.id })}
-                >
-                  <Text style={styles.buttonText}>Detalles</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                  <Text style={styles.buttonText}>Modificar</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Menús Disponibles</Text>
 
-      <Button
-        title="Buscar Platos"
-        onPress={() => navigation.navigate('busquedaPlatos')}
-      />
-    </View>
+      {/* Carne Asada */}
+      <View style={styles.menuSection}>
+        <Text style={styles.sectionTitle}>Menú Carne Asada</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {menus.carneAsada.length > 0 ? (
+            menus.carneAsada.map((product) => (
+              <TouchableOpacity
+                key={product.id}
+                style={styles.menuCard}
+                onPress={() => navigateToDetails(product.id)}
+              >
+                <Image source={{ uri: product.image }} style={styles.menuImage} />
+                <Text style={styles.menuTitle}>{product.title}</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text>No hay productos disponibles</Text>
+          )}
+        </ScrollView>
+      </View>
+
+      {/* Pollo y Pescado */}
+      <View style={styles.menuSection}>
+        <Text style={styles.sectionTitle}>Menú Pollo y Pescado</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {menus.polloYPescado.length > 0 ? (
+            menus.polloYPescado.map((product) => (
+              <TouchableOpacity
+                key={product.id}
+                style={styles.menuCard}
+                onPress={() => navigateToDetails(product.id)}
+              >
+                <Image source={{ uri: product.image }} style={styles.menuImage} />
+                <Text style={styles.menuTitle}>{product.title}</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text>No hay productos disponibles</Text>
+          )}
+        </ScrollView>
+      </View>
+
+      {/* Ensalada */}
+      <View style={styles.menuSection}>
+        <Text style={styles.sectionTitle}>Menú Ensalada</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {menus.ensalada.length > 0 ? (
+            menus.ensalada.map((product) => (
+              <TouchableOpacity
+                key={product.id}
+                style={styles.menuCard}
+                onPress={() => navigateToDetails(product.id)}
+              >
+                <Image source={{ uri: product.image }} style={styles.menuImage} />
+                <Text style={styles.menuTitle}>{product.title}</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text>No hay productos disponibles</Text>
+          )}
+        </ScrollView>
+      </View>
+
+      {/* Carne Vegana y Ensalada */}
+      <View style={styles.menuSection}>
+        <Text style={styles.sectionTitle}>Menú Carne Vegana y Ensalada</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {menus.carneVeganaYEnsalada.length > 0 ? (
+            menus.carneVeganaYEnsalada.map((product) => (
+              <TouchableOpacity
+                key={product.id}
+                style={styles.menuCard}
+                onPress={() => navigateToDetails(product.id)}
+              >
+                <Image source={{ uri: product.image }} style={styles.menuImage} />
+                <Text style={styles.menuTitle}>{product.title}</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text>No hay productos disponibles</Text>
+          )}
+        </ScrollView>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
-    backgroundColor: '#f7f7f7', // Fondo gris claro
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
     fontWeight: 'bold',
-  },
-  scrollViewContainer: {
-    paddingBottom: 20,
-  },
-  menuContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  menuItem: {
-    width: '48%', // Ocupa el 48% del ancho de la pantalla para dos items por fila
-    backgroundColor: '#fff', // Fondo blanco
-    padding: 16,
     marginBottom: 20,
-    borderRadius: 12, // Borde redondeado para efecto de carta
-    shadowColor: '#000', // Sombra
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5, // Sombra para Android
+  },
+  menuSection: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  menuCard: {
+    width: 200,
+    height: 250,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    marginRight: 10,
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    elevation: 3,
+  },
+  menuImage: {
+    width: '100%',
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 10,
   },
   menuTitle: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 14,
     fontWeight: 'bold',
-  },
-  menuDescription: {
-    fontSize: 14,
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#555', // Texto ligeramente más oscuro
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between', // Asegura que los botones tengan espacio
-    width: '100%',
-    marginTop: 10,
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 8, // Reduce la altura del botón
-    paddingHorizontal: 12, // Ajuste horizontal
-    borderRadius: 5,
-    margin: 5,
-    alignItems: 'center',
-    flex: 1, // Hace que los botones se distribuyan por igual
-    maxWidth: '45%', // No ocupen más del 45% del espacio en una fila
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    textAlign: 'center', // Asegura que el texto esté centrado en el botón
   },
 });
