@@ -23,7 +23,7 @@ export const ProductProvider = ({ children }) => {
     const menuIdsList = menuIds[menuKey];
     try {
       const productPromises = menuIdsList.map((id) =>
-        axios.get(`https://api.spoonacular.com/recipes/${id}/information?apiKey=a58d09209c304872a01a3556e2f0c6c9`)
+        axios.get(`https://api.spoonacular.com/recipes/${id}/information?apiKey=25f6454b08104fad9a0baedd0ce10583`)
       );
       const results = await Promise.all(productPromises);
       setMenus((prevMenus) => ({
