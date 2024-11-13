@@ -1,9 +1,11 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const ProductContext = createContext();
 export const useProducts = () => useContext(ProductContext);
 
 export const ProductProvider = ({ children }) => {
-  const initialMenus = JSON.parse(localStorage.getItem('menus')) || {
+  const initialMenus = {
     carneAsada: [],
     polloYPescado: [],
     ensalada: [],
@@ -11,8 +13,13 @@ export const ProductProvider = ({ children }) => {
   };
 
   const [menus, setMenus] = useState(initialMenus);
-  const saveMenusToLocalStorage = (menus) => {
-    localStorage.setItem('menus', JSON.stringify(menus));
+
+  const saveMenusToAsyncStorage = async (menus) => {
+    try {
+      await AsyncStorage.setItem('menus', JSON.stringify(menus));
+    } catch (error) {
+      console.error('Error al guardar en AsyncStorage:', error);
+    }
   };
 
   const addProductToMenu = (menuType, product) => {
@@ -21,7 +28,7 @@ export const ProductProvider = ({ children }) => {
       [menuType]: [...menus[menuType], product],
     };
     setMenus(updatedMenus);
-    saveMenusToLocalStorage(updatedMenus);
+    saveMenusToAsyncStorage(updatedMenus);
   };
 
   const removeProductFromMenu = (menuType, productId) => {
@@ -30,14 +37,22 @@ export const ProductProvider = ({ children }) => {
       [menuType]: menus[menuType].filter((product) => product.id !== productId),
     };
     setMenus(updatedMenus);
-    saveMenusToLocalStorage(updatedMenus);
+    saveMenusToAsyncStorage(updatedMenus);
   };
 
   useEffect(() => {
-    const storedMenus = localStorage.getItem('menus');
-    if (storedMenus) {
-      setMenus(JSON.parse(storedMenus));
-    }
+    const loadMenusFromAsyncStorage = async () => {
+      try {
+        const storedMenus = await AsyncStorage.getItem('menus');
+        if (storedMenus) {
+          setMenus(JSON.parse(storedMenus));
+        }
+      } catch (error) {
+        console.error('Error al cargar desde AsyncStorage:', error);
+      }
+    };
+
+    loadMenusFromAsyncStorage();
   }, []);
 
   return (

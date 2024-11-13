@@ -39,7 +39,7 @@ export default function HomeScreen() {
   }, [menus]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView horizontal style={styles.container}>
       <View style={styles.menuWrapper}>
         {Object.keys(menus).map((menuKey) => (
           <View key={menuKey} style={styles.menuSection}>
