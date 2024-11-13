@@ -1,34 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet } from 'react-native';
-import { useProducts } from '../context/productContext';
+import axios from 'axios';
+import { useRoute } from '@react-navigation/native';
 
-export default function DetallePlatoScreen({ route }) {
-  const { menuId } = route.params;
-  const { menus } = useProducts();
-  const [menuDetails, setMenuDetails] = useState([]);
+export default function DetallePlatoScreen() {
+  const route = useRoute();
+  const { menuId } = route.params; 
+  const [menuDetails, setMenuDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let menuName = '';
-    if (menus.carneAsada.some(product => product.id === menuId)) {
-      menuName = 'carneAsada';
-    } else if (menus.polloYPescado.some(product => product.id === menuId)) {
-      menuName = 'polloYPescado';
-    } else if (menus.ensalada.some(product => product.id === menuId)) {
-      menuName = 'ensalada';
-    } else if (menus.carneVeganaYEnsalada.some(product => product.id === menuId)) {
-      menuName = 'carneVeganaYEnsalada';
-    }
+    const fetchMenuDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `https://api.spoonacular.com/recipes/${menuId}/information?apiKey=3a5e6b926e0f4313b4a79dc8ee06be5f`
+        );
+        setMenuDetails(response.data);
+      } catch (error) {
+        console.error('Error al obtener los detalles del plato:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const product = menus[menuName].find(product => product.id === menuId);
-    if (product) {
-      setMenuDetails(product);
-    }
-  }, [menuId, menus]);
+    fetchMenuDetails();
+  }, [menuId]); // Se ejecuta cuando el ID cambia
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Cargando detalles...</Text>
+      </View>
+    );
+  }
 
   if (!menuDetails) {
     return (
       <View style={styles.container}>
-        <Text>Cargando detalles...</Text>
+        <Text>No se encontraron detalles del plato.</Text>
       </View>
     );
   }

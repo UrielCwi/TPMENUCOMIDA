@@ -1,49 +1,48 @@
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-
+import React, { createContext, useState, useEffect, useContext } from 'react';
 const ProductContext = createContext();
-
-const menuIds = {
-  carneAsada: [649195, 635675, 660275, 636026],
-  polloYPescado: [638550, 632815, 1697751, 654403],
-  ensalada: [660109, 651467, 634792, 37513],
-  carneVeganaYEnsalada: [657243, 642540, 652750, 634792],
-};
+export const useProducts = () => useContext(ProductContext);
 
 export const ProductProvider = ({ children }) => {
-  const [menus, setMenus] = useState({
+  const initialMenus = JSON.parse(localStorage.getItem('menus')) || {
     carneAsada: [],
     polloYPescado: [],
     ensalada: [],
     carneVeganaYEnsalada: [],
-  });
+  };
 
-  // Función para obtener detalles de cada plato
-  const fetchMenuDetails = async (menuKey) => {
-    const menuIdsList = menuIds[menuKey];
-    try {
-      const productPromises = menuIdsList.map((id) =>
-        axios.get(`https://api.spoonacular.com/recipes/${id}/information?apiKey=25f6454b08104fad9a0baedd0ce10583`)
-      );
-      const results = await Promise.all(productPromises);
-      setMenus((prevMenus) => ({
-        ...prevMenus,
-        [menuKey]: results.map((result) => result.data),
-      }));
-    } catch (error) {
-      console.error('Error al obtener los detalles del menú:', error);
-    }
+  const [menus, setMenus] = useState(initialMenus);
+  const saveMenusToLocalStorage = (menus) => {
+    localStorage.setItem('menus', JSON.stringify(menus));
+  };
+
+  const addProductToMenu = (menuType, product) => {
+    const updatedMenus = {
+      ...menus,
+      [menuType]: [...menus[menuType], product],
+    };
+    setMenus(updatedMenus);
+    saveMenusToLocalStorage(updatedMenus);
+  };
+
+  const removeProductFromMenu = (menuType, productId) => {
+    const updatedMenus = {
+      ...menus,
+      [menuType]: menus[menuType].filter((product) => product.id !== productId),
+    };
+    setMenus(updatedMenus);
+    saveMenusToLocalStorage(updatedMenus);
   };
 
   useEffect(() => {
-    Object.keys(menuIds).forEach((menuKey) => fetchMenuDetails(menuKey));
+    const storedMenus = localStorage.getItem('menus');
+    if (storedMenus) {
+      setMenus(JSON.parse(storedMenus));
+    }
   }, []);
 
   return (
-    <ProductContext.Provider value={{ menus }}>
+    <ProductContext.Provider value={{ menus, addProductToMenu, removeProductFromMenu }}>
       {children}
     </ProductContext.Provider>
   );
 };
-
-export const useProducts = () => React.useContext(ProductContext);

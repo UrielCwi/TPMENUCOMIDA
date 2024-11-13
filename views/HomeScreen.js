@@ -1,102 +1,82 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useProducts } from '../context/productContext';
+import { useProducts } from '../context/ProductContext';
+import axios from 'axios';
 
 export default function HomeScreen() {
-  const { menus } = useProducts();
+  const { menus, removeProductFromMenu } = useProducts();
+  const [productDetails, setProductDetails] = useState({});
   const navigation = useNavigation();
-
-  const navigateToDetails = (menuId) => {
-    navigation.navigate('detallePlato', { menuId });
+  console.log(menus)
+  // Función para obtener los detalles de un plato desde la API de Spoonacular
+  const getProductDetails = async (productId) => {
+    try {
+      const response = await axios.get(`https://api.spoonacular.com/recipes/${productId}/information?apiKey=3a5e6b926e0f4313b4a79dc8ee06be5f`)
+      return {
+        title: response.data.title,
+        image: response.data.image,
+      };
+    } catch (error) {
+      console.error('Error al obtener los detalles del plato:', error);
+      return {};
+    }
   };
 
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      let details = {};
+      for (const menuKey in menus) {
+        for (const product of menus[menuKey]) {
+          const detailsForProduct = await getProductDetails(product.id);
+          details[product.id] = detailsForProduct;
+        }
+      }
+      setProductDetails(details);
+    };
+
+    fetchProductDetails();
+  }, [menus]);
+
   return (
-    <ScrollView horizontal style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.menuWrapper}>
-        {/* Menú Carne Asada */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Menú Carne Asada</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {menus.carneAsada.length > 0 ? (
-              menus.carneAsada.map((product) => (
-                <TouchableOpacity
-                  key={product.id}
-                  style={styles.menuCard}
-                  onPress={() => navigateToDetails(product.id)}
-                >
-                  <Image source={{ uri: product.image }} style={styles.menuImage} />
-                  <Text style={styles.menuTitle}>{product.title}</Text>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text>No hay productos disponibles</Text>
-            )}
-          </ScrollView>
-        </View>
-
-        {/* Menú Pollo y Pescado */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Menú Pollo y Pescado</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {menus.polloYPescado.length > 0 ? (
-              menus.polloYPescado.map((product) => (
-                <TouchableOpacity
-                  key={product.id}
-                  style={styles.menuCard}
-                  onPress={() => navigateToDetails(product.id)}
-                >
-                  <Image source={{ uri: product.image }} style={styles.menuImage} />
-                  <Text style={styles.menuTitle}>{product.title}</Text>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text>No hay productos disponibles</Text>
-            )}
-          </ScrollView>
-        </View>
-
-        {/* Menú Ensalada */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Menú Ensalada</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {menus.ensalada.length > 0 ? (
-              menus.ensalada.map((product) => (
-                <TouchableOpacity
-                  key={product.id}
-                  style={styles.menuCard}
-                  onPress={() => navigateToDetails(product.id)}
-                >
-                  <Image source={{ uri: product.image }} style={styles.menuImage} />
-                  <Text style={styles.menuTitle}>{product.title}</Text>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text>No hay productos disponibles</Text>
-            )}
-          </ScrollView>
-        </View>
-
-        {/* Menú Carne Vegana y Ensalada */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Menú Carne Vegana y Ensalada</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {menus.carneVeganaYEnsalada.length > 0 ? (
-              menus.carneVeganaYEnsalada.map((product) => (
-                <TouchableOpacity
-                  key={product.id}
-                  style={styles.menuCard}
-                  onPress={() => navigateToDetails(product.id)}
-                >
-                  <Image source={{ uri: product.image }} style={styles.menuImage} />
-                  <Text style={styles.menuTitle}>{product.title}</Text>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text>No hay productos disponibles</Text>
-            )}
-          </ScrollView>
-        </View>
+        {Object.keys(menus).map((menuKey) => (
+          <View key={menuKey} style={styles.menuSection}>
+            <Text style={styles.sectionTitle}>Menu: {menuKey}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {menus[menuKey].length > 0 ? (
+                menus[menuKey].map((product) => (
+                  <View key={product.id} style={styles.menuCard}>
+                    <Image
+                      source={{ uri: productDetails[product.id]?.image || product.image }}
+                      style={styles.menuImage}
+                    />
+                    <Text style={styles.menuTitle}>{productDetails[product.id]?.title || product.title}</Text>
+                    <Button
+                      title="Eliminar"
+                      onPress={() => removeProductFromMenu(menuKey, product.id)}
+                      color="#dc3545"
+                    />
+                    <Button
+                      title="Ver Detalle"
+                      onPress={() => navigation.navigate('detallePlato', { menuId: product.id })}
+                      color="#007bff"
+                    />
+                  </View>
+                ))
+              ) : (
+                <Text>No hay productos disponibles</Text>
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate('busquedaPlato', { menuKey })}
+            >
+              <Text style={styles.addButtonText}>Añadir Plato</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
     </ScrollView>
   );
@@ -111,9 +91,11 @@ const styles = StyleSheet.create({
   menuWrapper: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    flexWrap: 'wrap',
   },
   menuSection: {
     marginRight: 20,
+    marginBottom: 20,
     padding: 10,
     borderWidth: 1,
     borderColor: '#ddd',
@@ -148,5 +130,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#333',
+    marginBottom: 5,
+  },
+  addButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
