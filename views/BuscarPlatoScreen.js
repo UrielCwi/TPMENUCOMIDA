@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, ScrollView, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import axios from 'axios';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useProducts } from '../context/ProductContext';
 
 export default function BuscarPlatoScreen() {
@@ -9,9 +9,11 @@ export default function BuscarPlatoScreen() {
   const [searchResults, setSearchResults] = useState([]);
   const [currentOffset, setCurrentOffset] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
-  const { addProductToMenu } = useProducts();
+  const { addProductToMenu, menu, APIKey } = useProducts(); // Asegúrate de tener acceso a `menu`
   const navigation = useNavigation();
-  const { APIKey } = useProducts();
+
+  // Combina los IDs de los platos en el menú
+  const menuProductIds = [...menu.vegan, ...menu.nonVegan];
 
   const fetchSearchResults = async (query, offset = 0) => {
     try {
@@ -27,9 +29,9 @@ export default function BuscarPlatoScreen() {
 
   const handleSearch = (text) => {
     setSearchQuery(text);
-    setCurrentOffset(0); 
+    setCurrentOffset(0);
     if (text.length > 2) {
-      fetchSearchResults(text, 0); 
+      fetchSearchResults(text, 0);
     }
   };
 
@@ -39,7 +41,7 @@ export default function BuscarPlatoScreen() {
   };
 
   const handleNextPage = () => {
-    const nextOffset = currentOffset + 5; 
+    const nextOffset = currentOffset + 5;
     if (nextOffset < totalResults) {
       setCurrentOffset(nextOffset);
       fetchSearchResults(searchQuery, nextOffset);
@@ -72,13 +74,16 @@ export default function BuscarPlatoScreen() {
                 style={styles.dishImage}
               />
             )}
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => handleAddDish({ ...item, vegan: item.vegan, price: item.price, healthScore: item.healthScore })}
-            >
-              <Text style={styles.addButtonText}>Agregar</Text>
-            </TouchableOpacity>
-
+            {menuProductIds.includes(item.id) ? (
+              <Text style={styles.alreadyInMenuText}>Ya está en el menú</Text>
+            ) : (
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => handleAddDish({ ...item, vegan: item.vegan, price: item.price, healthScore: item.healthScore })}
+              >
+                <Text style={styles.addButtonText}>Agregar</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.detailButton}
               onPress={() => navigation.navigate('detallePlato', { menuId: item.id })}
@@ -110,7 +115,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 125,
     resizeMode: 'cover',
-    marginBottom: 10, 
+    marginBottom: 10,
   },
   searchInput: {
     height: 40,
@@ -141,6 +146,10 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: '#fff',
+    fontWeight: 'bold',
+  },
+  alreadyInMenuText: {
+    color: '#888',
     fontWeight: 'bold',
   },
   pagination: {
