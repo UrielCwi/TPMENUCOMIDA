@@ -9,9 +9,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const [menuDetails, setMenuDetails] = useState([]);
 
-  const {APIKey} = useProducts(); // Reemplaza con tu API key
-
-  // Función para obtener los detalles de los platos por ID
+  const {APIKey} = useProducts();  
   const fetchMenuDetails = async () => {
     try {
       const details = await Promise.all(

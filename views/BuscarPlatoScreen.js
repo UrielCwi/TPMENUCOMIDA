@@ -7,8 +7,8 @@ import { useProducts } from '../context/ProductContext';
 export default function BuscarPlatoScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [currentOffset, setCurrentOffset] = useState(0); // Control del desplazamiento actual
-  const [totalResults, setTotalResults] = useState(0); // Total de resultados disponibles
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [totalResults, setTotalResults] = useState(0);
   const { addProductToMenu } = useProducts();
   const navigation = useNavigation();
   const { APIKey } = useProducts();
@@ -19,7 +19,7 @@ export default function BuscarPlatoScreen() {
         `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=10&offset=${offset}&apiKey=${APIKey}&addRecipeInformation=TRUE`
       );
       setSearchResults(response.data.results);
-      setTotalResults(response.data.totalResults); // Guardamos el total de resultados disponibles
+      setTotalResults(response.data.totalResults);
     } catch (error) {
       console.error('Error al buscar platos:', error);
     }
@@ -27,9 +27,9 @@ export default function BuscarPlatoScreen() {
 
   const handleSearch = (text) => {
     setSearchQuery(text);
-    setCurrentOffset(0); // Resetear offset al buscar una nueva consulta
+    setCurrentOffset(0); 
     if (text.length > 2) {
-      fetchSearchResults(text, 0); // Traer resultados desde el principio
+      fetchSearchResults(text, 0); 
     }
   };
 
@@ -39,7 +39,7 @@ export default function BuscarPlatoScreen() {
   };
 
   const handleNextPage = () => {
-    const nextOffset = currentOffset + 5; // Incrementamos 5 para la siguiente página
+    const nextOffset = currentOffset + 5; 
     if (nextOffset < totalResults) {
       setCurrentOffset(nextOffset);
       fetchSearchResults(searchQuery, nextOffset);
@@ -47,7 +47,7 @@ export default function BuscarPlatoScreen() {
   };
 
   const handlePreviousPage = () => {
-    const prevOffset = currentOffset - 5; // Decrementamos 5 para la página anterior
+    const prevOffset = currentOffset - 5;
     if (prevOffset >= 0) {
       setCurrentOffset(prevOffset);
       fetchSearchResults(searchQuery, prevOffset);
