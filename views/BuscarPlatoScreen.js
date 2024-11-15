@@ -9,15 +9,14 @@ export default function BuscarPlatoScreen() {
   const [searchResults, setSearchResults] = useState([]);
   const { addProductToMenu } = useProducts();
   const navigation = useNavigation();
-  const route = useRoute();
-  const { menuKey } = route.params;
+  const {APIKey} = useProducts(); 
 
   const fetchSearchResults = async (query) => {
     try {
       const response = await axios.get(
-        `https://api.spoonacular.com/recipes/autocomplete?number=10&query=${query}&apiKey=3a5e6b926e0f4313b4a79dc8ee06be5f`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=10&apiKey=${APIKey}&addRecipeInformation=TRUE`
       );
-      setSearchResults(response.data);
+      setSearchResults(response.data.results);
     } catch (error) {
       console.error('Error al buscar platos:', error);
     }
@@ -31,7 +30,7 @@ export default function BuscarPlatoScreen() {
   };
 
   const handleAddDish = (dish) => {
-    addProductToMenu(menuKey, dish);
+    addProductToMenu(dish);
     navigation.goBack();
   };
 
@@ -50,14 +49,8 @@ export default function BuscarPlatoScreen() {
           <View style={styles.resultItem}>
             <Text style={styles.resultTitle}>{item.title}</Text>
             <TouchableOpacity
-              style={styles.detailsButton}
-              onPress={() => navigation.navigate('detallePlato', { menuId: item.id })}
-            >
-              <Text style={styles.detailsButtonText}>Detalles</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
               style={styles.addButton}
-              onPress={() => handleAddDish(item)}
+              onPress={() => handleAddDish({ ...item, vegan: item.vegan, price: item.price, healthScore: item.healthScore })}
             >
               <Text style={styles.addButtonText}>Agregar</Text>
             </TouchableOpacity>
@@ -83,9 +76,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   resultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
@@ -93,15 +83,6 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 16,
     color: '#333',
-  },
-  detailsButton: {
-    backgroundColor: '#6c757d',
-    padding: 5,
-    borderRadius: 5,
-  },
-  detailsButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
   addButton: {
     backgroundColor: '#28a745',

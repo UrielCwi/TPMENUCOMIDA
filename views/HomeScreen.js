@@ -1,84 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Button } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Button, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProducts } from '../context/ProductContext';
 import axios from 'axios';
 
 export default function HomeScreen() {
-  const { menus, removeProductFromMenu } = useProducts();
-  const [productDetails, setProductDetails] = useState({});
+  const { menu, totalPrice, averageHealthScore, removeProductFromMenu } = useProducts();
   const navigation = useNavigation();
-  console.log(menus)
-  // Función para obtener los detalles de un plato desde la API de Spoonacular
-  const getProductDetails = async (productId) => {
-    try {
-      const response = await axios.get(`https://api.spoonacular.com/recipes/${productId}/information?apiKey=3a5e6b926e0f4313b4a79dc8ee06be5f`)
-      return {
-        title: response.data.title,
-        image: response.data.image,
-      };
-    } catch (error) {
-      console.error('Error al obtener los detalles del plato:', error);
-      return {};
-    }
-  };
 
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      let details = {};
-      for (const menuKey in menus) {
-        for (const product of menus[menuKey]) {
-          const detailsForProduct = await getProductDetails(product.id);
-          details[product.id] = detailsForProduct;
-        }
-      }
-      setProductDetails(details);
-    };
-
-    fetchProductDetails();
-  }, [menus]);
+  const renderMenuItem = (item) => (
+    <View style={styles.menuItem}>
+      <Image source={{ uri: item.image }} style={styles.menuImage} />
+      <Text style={styles.menuTitle}>{item.title}</Text>
+      <Text style={styles.menuPrice}>
+        ${item.price ? item.price.toFixed(2) : '0.00'}
+      </Text>
+      <Text style={styles.menuHealthScore}>HealthScore: {item.healthScore}</Text>
+      <Button title="Eliminar" onPress={() => removeProductFromMenu(item.id)} color="#dc3545" />
+      <TouchableOpacity
+        style={styles.detailsButton}
+        onPress={() => navigation.navigate('detallePlato', { menuId: item.id })}
+      >
+        <Text style={styles.detailsButtonText}>Ver Detalles</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <ScrollView horizontal style={styles.container}>
-      <View style={styles.menuWrapper}>
-        {Object.keys(menus).map((menuKey) => (
-          <View key={menuKey} style={styles.menuSection}>
-            <Text style={styles.sectionTitle}>Menu: {menuKey}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {menus[menuKey].length > 0 ? (
-                menus[menuKey].map((product) => (
-                  <View key={product.id} style={styles.menuCard}>
-                    <Image
-                      source={{ uri: productDetails[product.id]?.image || product.image }}
-                      style={styles.menuImage}
-                    />
-                    <Text style={styles.menuTitle}>{productDetails[product.id]?.title || product.title}</Text>
-                    <Button
-                      title="Eliminar"
-                      onPress={() => removeProductFromMenu(menuKey, product.id)}
-                      color="#dc3545"
-                    />
-                    <Button
-                      title="Ver Detalle"
-                      onPress={() => navigation.navigate('detallePlato', { menuId: product.id })}
-                      color="#007bff"
-                    />
-                  </View>
-                ))
-              ) : (
-                <Text>No hay productos disponibles</Text>
-              )}
-            </ScrollView>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => navigation.navigate('busquedaPlato', { menuKey })}
-            >
-              <Text style={styles.addButtonText}>Añadir Plato</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <Text style={styles.header}>Menú</Text>
+      <Text style={styles.stats}>Precio Total: ${totalPrice.toFixed(2)}</Text>
+      <Text style={styles.stats}>HealthScore Promedio: {averageHealthScore.toFixed(2)}</Text>
+      <FlatList
+        data={[...menu.vegan, ...menu.nonVegan]}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => renderMenuItem(item)}
+      />
+      <Button title="Buscar Plato" onPress={() => navigation.navigate('busquedaPlato')} />
+    </View>
   );
 }
 
@@ -88,59 +47,50 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
-  menuWrapper: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-  menuSection: {
-    marginRight: 20,
-    marginBottom: 20,
+  stats: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
     padding: 10,
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  menuCard: {
-    width: 200,
-    backgroundColor: '#fff',
     borderRadius: 8,
-    marginRight: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    elevation: 3,
   },
   menuImage: {
-    width: '100%',
-    height: 120,
+    width: 50,
+    height: 50,
     borderRadius: 8,
-    marginBottom: 10,
+    marginRight: 10,
   },
   menuTitle: {
+    fontSize: 16,
+    flex: 1,
+  },
+  menuPrice: {
     fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#333',
-    marginBottom: 5,
+    color: '#888',
   },
-  addButton: {
-    marginTop: 10,
-    padding: 10,
+  menuHealthScore: {
+    fontSize: 14,
+    color: '#888',
+  },
+  detailsButton: {
     backgroundColor: '#007bff',
+    padding: 5,
     borderRadius: 5,
+    marginLeft: 10,
   },
-  addButtonText: {
+  detailsButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    textAlign: 'center',
   },
 });

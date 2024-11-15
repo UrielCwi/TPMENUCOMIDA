@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
+import { useProducts } from '../context/ProductContext';
 
 export default function DetallePlatoScreen() {
   const route = useRoute();
-  const { menuId } = route.params; 
-  const [menuDetails, setMenuDetails] = useState(null);
+  const { menuId } = route.params;
+  const [dishDetails, setDishDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const {APIKey} = useProducts();
 
   useEffect(() => {
-    const fetchMenuDetails = async () => {
+    const fetchDishDetails = async () => {
       try {
-        setLoading(true);
         const response = await axios.get(
-          `https://api.spoonacular.com/recipes/${menuId}/information?apiKey=3a5e6b926e0f4313b4a79dc8ee06be5f`
+          `https://api.spoonacular.com/recipes/${menuId}/information?apiKey=${APIKey}`
         );
-        setMenuDetails(response.data);
+        setDishDetails(response.data);
       } catch (error) {
         console.error('Error al obtener los detalles del plato:', error);
       } finally {
@@ -24,31 +25,32 @@ export default function DetallePlatoScreen() {
       }
     };
 
-    fetchMenuDetails();
-  }, [menuId]); // Se ejecuta cuando el ID cambia
+    fetchDishDetails();
+  }, [menuId]);
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
         <Text>Cargando detalles...</Text>
       </View>
     );
   }
 
-  if (!menuDetails) {
+  if (!dishDetails) {
     return (
       <View style={styles.container}>
-        <Text>No se encontraron detalles del plato.</Text>
+        <Text>Error al cargar los detalles del plato.</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={{ uri: menuDetails.image }} style={styles.image} />
-      <Text style={styles.title}>{menuDetails.title}</Text>
-      <Text style={styles.description}>{menuDetails.summary}</Text>
-      <Text style={styles.instructions}>{menuDetails.instructions}</Text>
+      <Image source={{ uri: dishDetails.image }} style={styles.image} />
+      <Text style={styles.title}>{dishDetails.title}</Text>
+      <Text style={styles.details}>HealthScore: {dishDetails.healthScore}</Text>
+      <Text style={styles.details}>{dishDetails.vegan ? 'Vegano' : 'No Vegano'}</Text>
     </ScrollView>
   );
 }
@@ -59,14 +61,11 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 16,
-    marginBottom: 10,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   image: {
     width: '100%',
@@ -74,8 +73,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
   },
-  instructions: {
-    fontSize: 14,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  details: {
+    fontSize: 16,
     color: '#555',
+    marginBottom: 5,
   },
 });
