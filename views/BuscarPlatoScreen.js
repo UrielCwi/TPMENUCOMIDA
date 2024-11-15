@@ -54,6 +54,12 @@ export default function BuscarPlatoScreen() {
             >
               <Text style={styles.addButtonText}>Agregar</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.detailButton}
+              onPress={() => navigation.navigate('detallePlato', { menuId: item.id })}
+            >
+              <Text style={styles.addButtonText}>Detalles </Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -86,6 +92,11 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: '#28a745',
+    padding: 5,
+    borderRadius: 5,
+  },
+  detailButton: {
+    backgroundColor: '#3c30ff',
     padding: 5,
     borderRadius: 5,
   },

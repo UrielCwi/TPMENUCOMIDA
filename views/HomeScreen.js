@@ -13,7 +13,7 @@ export default function HomeScreen() {
       <Image source={{ uri: item.image }} style={styles.menuImage} />
       <Text style={styles.menuTitle}>{item.title}</Text>
       <Text style={styles.menuPrice}>
-        ${item.price ? item.price.toFixed(2) : '0.00'}
+        ${item.price ? item.price.toFixed(2) + " || " : '0.00 ||  '}
       </Text>
       <Text style={styles.menuHealthScore}>HealthScore: {item.healthScore}</Text>
       <Button title="Eliminar" onPress={() => removeProductFromMenu(item.id)} color="#dc3545" />
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   menuHealthScore: {
+    marginRight: 20,
     fontSize: 14,
     color: '#888',
   },
