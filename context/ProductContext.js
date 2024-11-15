@@ -10,7 +10,7 @@ export const ProductProvider = ({ children }) => {
   const [menu, setMenu] = useState(initialMenu);
   const [totalPrice, setTotalPrice] = useState(0);
   const [averageHealthScore, setAverageHealthScore] = useState(0);
-  const APIKey = 'd2ace8871fde448e844eb5ed7c8ba787';
+  const APIKey = '547d26b8e4054beeb2c8ad8a3f7b5f31';
 
   const saveMenuToAsyncStorage = async (menu) => {
     try {
@@ -47,6 +47,7 @@ export const ProductProvider = ({ children }) => {
 
   const addProductToMenu = async (product) => {
     const price = await fetchPrice(product.id);
+    console.log(menu.vegan)
     if (product.vegan) {
       if (menu.vegan.includes(product.id)) {
         alert('Este plato vegano ya está en el menú.');
@@ -132,6 +133,8 @@ export const ProductProvider = ({ children }) => {
 
   useEffect(() => {
     loadMenuFromAsyncStorage();
+    console.log(menu.vegan)
+    console.log(menu.nonVegan)
   }, []);
 
   return (

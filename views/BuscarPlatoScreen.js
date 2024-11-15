@@ -16,7 +16,7 @@ export default function BuscarPlatoScreen() {
   const fetchSearchResults = async (query, offset = 0) => {
     try {
       const response = await axios.get(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=3&offset=${offset}&apiKey=${APIKey}&addRecipeInformation=TRUE`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=10&offset=${offset}&apiKey=${APIKey}&addRecipeInformation=TRUE`
       );
       setSearchResults(response.data.results);
       setTotalResults(response.data.totalResults); // Guardamos el total de resultados disponibles
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   dishImage: {
-    width: '10%',
+    width: '100%',
     height: 125,
     resizeMode: 'cover',
     marginBottom: 10, 

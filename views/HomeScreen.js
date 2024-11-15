@@ -24,7 +24,7 @@ export default function HomeScreen() {
             title: response.data.title,
             isVegan: response.data.vegan,
             image: response.data.image,
-            price: response.data.pricePerServing / 100, // Asumiendo que la API devuelve el precio en centavos
+            price: response.data.pricePerServing / 100,
             healthScore: response.data.healthScore,
           };
         })
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column', // Cambié de 'row' a 'column' para que los elementos estén en una columna
+    alignItems: 'flex-start', // Alineación a la izquierda
     marginBottom: 10,
     padding: 10,
     borderWidth: 1,
@@ -100,28 +100,42 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 8,
-    marginRight: 10,
+    marginBottom: 10, // Añadí espacio entre la imagen y el texto
   },
   menuTitle: {
     fontSize: 16,
-    flex: 1,
+    marginBottom: 5, // Añadí espacio entre el título y los botones
   },
   menuPrice: {
     fontSize: 14,
     color: '#888',
+    marginBottom: 5, // Añadí espacio entre el precio y los botones
   },
   menuHealthScore: {
-    marginRight: 20,
     fontSize: 14,
     color: '#888',
+    marginBottom: 10, // Añadí espacio entre el health score y los botones
+  },
+  buttonsContainer: {
+    flexDirection: 'column', // Coloca los botones en una columna
+    alignItems: 'center', // Centra los botones
   },
   detailsButton: {
     backgroundColor: '#007bff',
-    padding: 5,
+    padding: 10,
     borderRadius: 5,
-    marginLeft: 10,
+    marginBottom: 5, // Espacio entre los botones
   },
   detailsButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
+    padding: 10,
+    borderRadius: 5,
+  },
+  deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
