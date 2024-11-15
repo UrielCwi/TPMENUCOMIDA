@@ -14,7 +14,7 @@ export default function BuscarPlatoScreen() {
   const fetchSearchResults = async (query) => {
     try {
       const response = await axios.get(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=10&apiKey=${APIKey}&addRecipeInformation=TRUE`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=5&apiKey=${APIKey}&addRecipeInformation=TRUE`
       );
       setSearchResults(response.data.results);
     } catch (error) {
@@ -58,7 +58,7 @@ export default function BuscarPlatoScreen() {
               style={styles.detailButton}
               onPress={() => navigation.navigate('detallePlato', { menuId: item.id })}
             >
-              <Text style={styles.addButtonText}>Detalles </Text>
+              <Text style={styles.addButtonText}>Detalles</Text>
             </TouchableOpacity>
           </View>
         )}
