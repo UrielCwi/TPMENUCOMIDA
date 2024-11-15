@@ -7,6 +7,37 @@ import axios from 'axios';
 export default function HomeScreen() {
   const { menu, totalPrice, averageHealthScore, removeProductFromMenu } = useProducts();
   const navigation = useNavigation();
+  const [menuDetails, setMenuDetails] = useState([]);
+
+  const {APIKey} = useProducts(); // Reemplaza con tu API key
+
+  // Función para obtener los detalles de los platos por ID
+  const fetchMenuDetails = async () => {
+    try {
+      const details = await Promise.all(
+        [...menu.vegan, ...menu.nonVegan].map(async (id) => {
+          const response = await axios.get(
+            `https://api.spoonacular.com/recipes/${id}/information?apiKey=${APIKey}`
+          );
+          return {
+            id: id,
+            title: response.data.title,
+            isVegan: response.data.vegan,
+            image: response.data.image,
+            price: response.data.pricePerServing / 100, // Asumiendo que la API devuelve el precio en centavos
+            healthScore: response.data.healthScore,
+          };
+        })
+      );
+      setMenuDetails(details);
+    } catch (error) {
+      console.error('Error al obtener detalles del menú:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenuDetails();
+  }, [menu]);
 
   const renderMenuItem = (item) => (
     <View style={styles.menuItem}>
@@ -16,7 +47,7 @@ export default function HomeScreen() {
         ${item.price ? item.price.toFixed(2) + " || " : '0.00 ||  '}
       </Text>
       <Text style={styles.menuHealthScore}>HealthScore: {item.healthScore}</Text>
-      <Button title="Eliminar" onPress={() => removeProductFromMenu(item.id)} color="#dc3545" />
+      <Button title="Eliminar" onPress={() => removeProductFromMenu(item.id, item.isVegan)} color="#dc3545" />
       <TouchableOpacity
         style={styles.detailsButton}
         onPress={() => navigation.navigate('detallePlato', { menuId: item.id })}
@@ -32,7 +63,7 @@ export default function HomeScreen() {
       <Text style={styles.stats}>Precio Total: ${totalPrice.toFixed(2)}</Text>
       <Text style={styles.stats}>HealthScore Promedio: {averageHealthScore.toFixed(2)}</Text>
       <FlatList
-        data={[...menu.vegan, ...menu.nonVegan]}
+        data={menuDetails}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => renderMenuItem(item)}
       />

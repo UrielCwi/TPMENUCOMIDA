@@ -10,7 +10,7 @@ export const ProductProvider = ({ children }) => {
   const [menu, setMenu] = useState(initialMenu);
   const [totalPrice, setTotalPrice] = useState(0);
   const [averageHealthScore, setAverageHealthScore] = useState(0);
-  const APIKey = 'f105a26a7761456d8069c871199d1ad6'; // Reemplaza con tu API key
+  const APIKey = 'd2ace8871fde448e844eb5ed7c8ba787';
 
   const saveMenuToAsyncStorage = async (menu) => {
     try {
@@ -26,7 +26,7 @@ export const ProductProvider = ({ children }) => {
       if (storedMenu) {
         const parsedMenu = JSON.parse(storedMenu);
         setMenu(parsedMenu);
-        calculateMenuStats(parsedMenu);
+        calculateMenuStats(parsedMenu, APIKey);
       }
     } catch (error) {
       console.error('Error al cargar desde AsyncStorage:', error);
@@ -47,46 +47,87 @@ export const ProductProvider = ({ children }) => {
 
   const addProductToMenu = async (product) => {
     const price = await fetchPrice(product.id);
-
     if (product.vegan) {
+      if (menu.vegan.includes(product.id)) {
+        alert('Este plato vegano ya está en el menú.');
+        return;
+      }
       if (menu.vegan.length >= 2) {
         alert('Solo puedes tener 2 platos veganos en el menú.');
         return;
       }
-      const updatedMenu = { ...menu, vegan: [...menu.vegan, { ...product, price }] };
+      const updatedMenu = { ...menu, vegan: [...menu.vegan, product.id] };
       setMenu(updatedMenu);
-      calculateMenuStats(updatedMenu);
+      calculateMenuStats(updatedMenu, APIKey);
       saveMenuToAsyncStorage(updatedMenu);
     } else {
+      if (menu.nonVegan.includes(product.id)) {
+        alert('Este plato no vegano ya está en el menú.');
+        return;
+      }
       if (menu.nonVegan.length >= 2) {
         alert('Solo puedes tener 2 platos no veganos en el menú.');
         return;
       }
-      const updatedMenu = { ...menu, nonVegan: [...menu.nonVegan, { ...product, price }] };
+      const updatedMenu = { ...menu, nonVegan: [...menu.nonVegan, product.id] };
       setMenu(updatedMenu);
-      calculateMenuStats(updatedMenu);
+      calculateMenuStats(updatedMenu, APIKey);
       saveMenuToAsyncStorage(updatedMenu);
     }
   };
 
-  const removeProductFromMenu = (productId) => {
+  const removeProductFromMenu = (productId, isVegan) => {
     const updatedMenu = {
-      vegan: menu.vegan.filter((product) => product.id !== productId),
-      nonVegan: menu.nonVegan.filter((product) => product.id !== productId),
+      vegan: isVegan ? menu.vegan.filter((id) => id !== productId) : menu.vegan,
+      nonVegan: !isVegan ? menu.nonVegan.filter((id) => id !== productId) : menu.nonVegan,
     };
     setMenu(updatedMenu);
-    calculateMenuStats(updatedMenu);
+    calculateMenuStats(updatedMenu, APIKey);
     saveMenuToAsyncStorage(updatedMenu);
   };
 
-  const calculateMenuStats = (menu) => {
-    const allDishes = [...menu.vegan, ...menu.nonVegan];
-    const total = allDishes.reduce((sum, dish) => sum + dish.price, 0);
-    const healthScoreAvg = allDishes.length
-      ? allDishes.reduce((sum, dish) => sum + dish.healthScore, 0) / allDishes.length
-      : 0;
-    setTotalPrice(total);
-    setAverageHealthScore(healthScoreAvg);
+  const calculateMenuStats = async (menu, APIKey) => {
+    const allDishes = [
+      ...menu.vegan.map((id) => ({ id, type: 'vegan' })),
+      ...menu.nonVegan.map((id) => ({ id, type: 'nonVegan' })),
+    ];
+    try {
+      const dishDetails = await Promise.all(
+        allDishes.map(async (dish) => {
+          const response = await axios.get(
+            `https://api.spoonacular.com/recipes/${dish.id}/information?apiKey=${APIKey}`
+          );
+          return {
+            id: dish.id,
+            title: response.data.title,
+            image: response.data.image,
+            price: response.data.pricePerServing / 100,
+            healthScore: response.data.healthScore,
+          };
+        })
+      );
+  
+      console.log("Detalles de los platos:", dishDetails);
+        const total = dishDetails.reduce((sum, dish) => {
+        console.log(`Dish ID: ${dish.id}, Title: ${dish.title}, Price: ${dish.price}`);
+        return sum + (dish.price || 0);
+      }, 0);
+  
+      console.log("Total acumulado:", total);
+        const healthScoreAvg = dishDetails.length
+        ? dishDetails.reduce((sum, dish) => {
+            console.log(`Dish ID: ${dish.id}, Title: ${dish.title}, HealthScore: ${dish.healthScore}`);
+            return sum + (dish.healthScore || 0);
+          }, 0) / dishDetails.length
+        : 0;
+  
+      console.log("Promedio de HealthScore:", healthScoreAvg);
+      setTotalPrice(total);
+      setAverageHealthScore(healthScoreAvg);
+  
+    } catch (error) {
+      console.error('Error al obtener detalles del menú:', error);
+    }
   };
 
   useEffect(() => {
