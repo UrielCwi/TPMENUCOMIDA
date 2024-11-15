@@ -9,10 +9,8 @@ export default function BuscarPlatoScreen() {
   const [searchResults, setSearchResults] = useState([]);
   const [currentOffset, setCurrentOffset] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
-  const { addProductToMenu, menu, APIKey } = useProducts(); // Asegúrate de tener acceso a `menu`
+  const { addProductToMenu, menu, APIKey } = useProducts();
   const navigation = useNavigation();
-
-  // Combina los IDs de los platos en el menú
   const menuProductIds = [...menu.vegan, ...menu.nonVegan];
 
   const fetchSearchResults = async (query, offset = 0) => {

@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   menuItem: {
-    flexDirection: 'column', // Cambié de 'row' a 'column' para que los elementos estén en una columna
-    alignItems: 'flex-start', // Alineación a la izquierda
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     marginBottom: 10,
     padding: 10,
     borderWidth: 1,
@@ -98,31 +98,31 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 8,
-    marginBottom: 10, // Añadí espacio entre la imagen y el texto
+    marginBottom: 10,
   },
   menuTitle: {
     fontSize: 16,
-    marginBottom: 5, // Añadí espacio entre el título y los botones
+    marginBottom: 5,
   },
   menuPrice: {
     fontSize: 14,
     color: '#888',
-    marginBottom: 5, // Añadí espacio entre el precio y los botones
+    marginBottom: 5,
   },
   menuHealthScore: {
     fontSize: 14,
     color: '#888',
-    marginBottom: 10, // Añadí espacio entre el health score y los botones
+    marginBottom: 10,
   },
   buttonsContainer: {
-    flexDirection: 'column', // Coloca los botones en una columna
-    alignItems: 'center', // Centra los botones
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   detailsButton: {
     backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 5,
-    marginBottom: 5, // Espacio entre los botones
+    marginBottom: 5,
   },
   detailsButtonText: {
     color: '#fff',
