@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, ScrollView, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, TextInput, ScrollView, Text, TouchableOpacity, StyleSheet, Image, Button } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { useProducts } from '../context/ProductContext';
@@ -9,7 +9,7 @@ export default function BuscarPlatoScreen() {
   const [searchResults, setSearchResults] = useState([]);
   const [currentOffset, setCurrentOffset] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
-  const { addProductToMenu, menu, APIKey } = useProducts();
+  const { addProductToMenu, removeProductFromMenu, menu, APIKey } = useProducts();
   const navigation = useNavigation();
   const menuProductIds = [...menu.vegan, ...menu.nonVegan];
 
@@ -32,12 +32,14 @@ export default function BuscarPlatoScreen() {
       fetchSearchResults(text, 0);
     }
   };
-
+  const handleDeleteDish = (dish, isVegan) => {
+    removeProductFromMenu(dish, isVegan)
+    navigation.goBack();
+  }
   const handleAddDish = (dish) => {
     addProductToMenu(dish);
     navigation.goBack();
   };
-
   const handleNextPage = () => {
     const nextOffset = currentOffset + 5;
     if (nextOffset < totalResults) {
@@ -73,7 +75,12 @@ export default function BuscarPlatoScreen() {
               />
             )}
             {menuProductIds.includes(item.id) ? (
-              <Text style={styles.alreadyInMenuText}>Ya está en el menú</Text>
+              <TouchableOpacity 
+                onPress={() => handleDeleteDish(item.id, item.isVegan)}
+                style={styles.deleteButton}
+              >
+                <Text style={styles.addButtonText}>Eliminar</Text>
+              </TouchableOpacity>
             ) : (
               <TouchableOpacity
                 style={styles.addButton}
@@ -139,6 +146,11 @@ const styles = StyleSheet.create({
   },
   detailButton: {
     backgroundColor: '#3c30ff',
+    padding: 5,
+    borderRadius: 5,
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
     padding: 5,
     borderRadius: 5,
   },
